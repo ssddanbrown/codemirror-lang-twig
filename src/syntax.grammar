@@ -1,26 +1,63 @@
-@top Program { expression* }
+@precedence {
+  top, lesser
+}
 
-@skip { space | LineComment }
+@top Program { (directive | Text)* }
+
+directive {
+  Insert |
+  Conditional { ConditionalOpen (directive | Text)* ConditionalClose }
+}
+
+@skip { space | BlockComment } {
+  Insert { "{{" DirectiveContent "}}" }
+  ConditionalOpen { "{%" kw<"block"> DirectiveContent "%}" }
+  ConditionalClose { "{%" kw<"endblock"> "%}" }
+}
+
+kw<word> { @specialize[@name={word}]<Identifier, word> }
+commaSep<content> { "" | content ("," content?)* }
 
 expression {
+  Function |
   Identifier |
   String |
   Boolean |
-  Application { "(" expression* ")" }
+  Number
 }
+
+functionParam {
+  Identifier |
+  String |
+  Boolean |
+  Number
+}
+
+FunctionParamList {
+  "(" commaSep<functionParam> ")"
+}
+
+Function { Identifier !top FunctionParamList}
 
 @tokens {
   Identifier { $[a-zA-Z_\-0-9]+ }
+  Text { ![{] Text? | "{" (@eof | ![%{] Text?) }
 
+  Boolean { "true" | "false" }
   String { '"' (!["\\] | "\\" _)* '"' }
+  Number { '-'? int frac? }
+  int  { '0' | $[1-9] @digit* }
+  frac { '.' @digit+ }
 
-  Boolean { "#t" | "#f" }
+  @precedence { DirectiveContent, Boolean, Number, Identifier, String, FunctionParamList, Text, sp }
 
-  LineComment { ";" ![\n]* }
+  BlockComment { "{#" blockCommentRest }
+  blockCommentRest { ![#] blockCommentRest | "#" blockCommentAfterHash }
+  blockCommentAfterHash { "}" | "#" blockCommentAfterHash | ![}#] blockCommentRest }
+
+  DirectiveContent { ![%}] expression? | $[%}] (@eof | ![}] expression?) }
 
   space { $[ \t\n\r]+ }
-
-  "(" ")"
 }
 
 @detectDelim
