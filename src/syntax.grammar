@@ -2,20 +2,15 @@
   top, lesser
 }
 
-@top Program { (directive | Text)* }
+@top Template { (InsertBlock | PlainText)* }
 
-directive {
-  Insert |
-  Conditional { ConditionalOpen (directive | Text)* ConditionalClose }
-}
+@skip { space | BlockComment }
 
-@skip { space | BlockComment } {
-  Insert { "{{" DirectiveContent "}}" }
-  ConditionalOpen { "{%" kw<"block"> DirectiveContent "%}" }
-  ConditionalClose { "{%" kw<"endblock"> "%}" }
-}
 
-kw<word> { @specialize[@name={word}]<Identifier, word> }
+InsertBlock { "{{" expression* "}}" }
+// ConditionalOpen { "{%" kw<"block"> expression "%}" }
+// ConditionalClose { "{%" kw<"endblock"> "%}" }
+
 commaSep<content> { "" | content ("," content?)* }
 
 expression {
@@ -23,7 +18,8 @@ expression {
   Identifier |
   String |
   Boolean |
-  Number
+  Number |
+  Keyword
 }
 
 functionParam {
@@ -41,23 +37,24 @@ Function { Identifier !top FunctionParamList}
 
 @tokens {
   Identifier { $[a-zA-Z_\-0-9]+ }
-  Text { ![{] Text? | "{" (@eof | ![%{] Text?) }
-
+  PlainText { ![{] PlainText? | "{" (@eof | ![{#%] PlainText?) }
+  Keyword { "and" | "as" | "autoescape" | "endautoescape" | "block" | "do" | "endblock" | "else" | "elseif" | "extends" | "for" | "endfor" | "embed" | "endembed" | "filter" | "endfilter" | "flush" | "from" | "if" | "endif" | "in" | "is" | "include" | "import" | "not" | "or" | "set" | "spaceless" | "endspaceless" | "with" | "endwith" | "trans" | "endtrans" | "blocktrans" | "endblocktrans" | "macro" | "endmacro" | "use" | "verbatim" | "endverbatim" }
   Boolean { "true" | "false" }
-  String { '"' (!["\\] | "\\" _)* '"' }
+  String { ("'" (![\\'] | "\\" _)* "'"?) | ("\"" (![\\"] | "\\" _)* "\""?) }
   Number { '-'? int frac? }
   int  { '0' | $[1-9] @digit* }
   frac { '.' @digit+ }
 
-  @precedence { DirectiveContent, Boolean, Number, Identifier, String, FunctionParamList, Text, sp }
+  @precedence { PlainText, Boolean, Number, Identifier, space, BlockComment, String, Keyword }
 
   BlockComment { "{#" blockCommentRest }
   blockCommentRest { ![#] blockCommentRest | "#" blockCommentAfterHash }
   blockCommentAfterHash { "}" | "#" blockCommentAfterHash | ![}#] blockCommentRest }
 
-  DirectiveContent { ![%}] expression? | $[%}] (@eof | ![}] expression?) }
-
   space { $[ \t\n\r]+ }
+
+  "{{" "}}" "{%" "%}"
+  "(" ")"
 }
 
 @detectDelim
