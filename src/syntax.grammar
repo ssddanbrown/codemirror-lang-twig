@@ -1,25 +1,29 @@
 @precedence {
-  top, lesser
+  top,
+  mid,
+  lesser
 }
 
-@top Template { (InsertBlock | PlainText)* }
+@top Template { (InsertBlock | CodeBlock | CodeOpenBlock !mid | CodeCloseBlock !top | PlainText)* }
 
 @skip { space | BlockComment }
 
 
 InsertBlock { "{{" expression* "}}" }
-// ConditionalOpen { "{%" kw<"block"> expression "%}" }
-// ConditionalClose { "{%" kw<"endblock"> "%}" }
+CodeBlock { "{%" CodeBlockTag? expression* "%}"}
+CodeOpenBlock { "{%" CodeOpenBlockTag expression* "%}"}
+CodeCloseBlock { "{%" CodeCloseBlockTag "%}"}
 
 commaSep<content> { "" | content ("," content?)* }
 
 expression {
   Function |
   Identifier |
+  ChainedIdentifier |
   String |
   Boolean |
   Number |
-  Keyword
+  Comparison
 }
 
 functionParam {
@@ -36,16 +40,24 @@ FunctionParamList {
 Function { Identifier !top FunctionParamList}
 
 @tokens {
-  Identifier { $[a-zA-Z_\-0-9]+ }
   PlainText { ![{] PlainText? | "{" (@eof | ![{#%] PlainText?) }
-  Keyword { "and" | "as" | "autoescape" | "endautoescape" | "block" | "do" | "endblock" | "else" | "elseif" | "extends" | "for" | "endfor" | "embed" | "endembed" | "filter" | "endfilter" | "flush" | "from" | "if" | "endif" | "in" | "is" | "include" | "import" | "not" | "or" | "set" | "spaceless" | "endspaceless" | "with" | "endwith" | "trans" | "endtrans" | "blocktrans" | "endblocktrans" | "macro" | "endmacro" | "use" | "verbatim" | "endverbatim" }
+
+  Identifier { $[a-zA-Z_\-0-9]+ }
+  ChainedIdentifier { Identifier ("." Identifier)+ }
+
+  CodeBlockTag { "set" | "extends" | "use" }
+  CodeOpenBlockTag { "apply" | "for" | "if" | "block" | "autoescape" | "verbatim" | "macro" }
+  CodeCloseBlockTag { "endapply" | "endfor" | "endif" | "endblock" | "endautoescape" | "endverbatim" | "endmacro" }
+
+  Comparison {"and" | "or" | "not" | "==" | "!=" | "<" | ">" | ">=" | "<=" | "starts with" | "ends with" | "matches" | "in" | "not"}
+
   Boolean { "true" | "false" }
   String { ("'" (![\\'] | "\\" _)* "'"?) | ("\"" (![\\"] | "\\" _)* "\""?) }
   Number { '-'? int frac? }
   int  { '0' | $[1-9] @digit* }
   frac { '.' @digit+ }
 
-  @precedence { PlainText, Boolean, Number, Identifier, space, BlockComment, String, Keyword }
+  @precedence { PlainText, Boolean, Number, Comparison, ChainedIdentifier, CodeBlockTag, CodeOpenBlockTag, CodeCloseBlockTag, Identifier, space, BlockComment, String }
 
   BlockComment { "{#" blockCommentRest }
   blockCommentRest { ![#] blockCommentRest | "#" blockCommentAfterHash }

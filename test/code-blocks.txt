@@ -1,0 +1,21 @@
+# Test simple code block definition
+
+{% extends "base" %}
+
+==>
+
+Template(CodeBlock(CodeBlockTag, String))
+
+# Test open and close block
+
+{% if true %}
+    <p>content</p>
+{% endif %}
+
+==>
+
+Template(
+    CodeOpenBlock(CodeOpenBlockTag, Boolean)
+    PlainText
+    CodeCloseBlock(CodeCloseBlockTag)
+)
