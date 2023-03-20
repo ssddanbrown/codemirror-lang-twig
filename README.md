@@ -1,6 +1,26 @@
-# CodeMirror 6 language package template
+# Twig Language CodeMirror 6
 
-Resources:
+This package aims to provide [Twig language](https://twig.symfony.com/) support to CodeMirror 6.
+
+**Advisory:** This has really just been created as a way to get highlighting support, with a goal of achieving good-enough alignment with the old official CodeMirror 5 twig syntax support. This will likely have bugs, omissions and won't have the full CodeMirror functionality feature-set. The fact that I've got as far as I have, attempting to use this mind-melting arcane language building system, is a miracle enough.
+
+### Contribution
+
+This is a low maintenance project. The scope of features and support are purposefully kept narrow for my purposes to ensure longer term maintenance is viable. Therefore I will be relatively strict on what issues and PRs I'm willing to accept.
+
+**Issues:** - I'm only really looking to address issues in existing functionality we support. Please don't open issues for new edge-case bugs, syntax additions or language features to add.
+
+**PRs:** - I'm happy to accept PRs that fix bugs, improve syntax support or add language features as long as they don't significantly increase the scope of things, they're covered with testing and the need/requirement is fully explained in the PR. You may open an issue if you need to discus anything, or validate acceptance before spending time, just make it clear you're intending to make a PR.
+
+### Attribution
+
+This project uses the [CodeMirror language package template](https://github.com/codemirror/lang-example), and I've also used various other CodeMirror default language projects as general guidance.
+
+Many thanks to [Marijn Haverbeke](https://github.com/marijnh) for their work in developing and providing CodeMirror and everything that supports it.
+
+### Useful Development Resources
+
+These are resources I've found useful in building this:
 
 - Simple JSON example: https://github.com/lezer-parser/json/blob/main/src/highlight.js
 - An underscore matches all chars (https://discuss.codemirror.net/t/match-for-all-characters/4230).
@@ -8,24 +28,3 @@ Resources:
 - Twig Guide: https://twig.symfony.com/doc/3.x/templates.html
 - Twig fiddle, with existing syntax highlighting: https://twigfiddle.com/
 - Old twig mode source: https://github.com/codemirror/codemirror5/blob/master/mode/twig/twig.js
-
-
-This is an example repository containing a minimal [CodeMirror](https://codemirror.net/6/) language support package. The idea is to clone it, rename it, and edit it to create support for a new language.
-
-Things you'll need to do (see the [language support example](https://codemirror.net/6/examples/lang-package/) for a more detailed tutorial):
-
- * `git grep EXAMPLE` and replace all instances with your language name.
-
- * Rewrite the grammar in `src/syntax.grammar` to cover your language. See the [Lezer system guide](https://lezer.codemirror.net/docs/guide/#writing-a-grammar) for information on this file format.
-
- * Adjust the metadata in `src/index.ts` to work with your new grammar.
-
- * Adjust the grammar tests in `test/cases.txt`.
-
- * Build (`npm run prepare`) and test (`npm test`).
-
- * Rewrite this readme file.
-
- * Optionally add a license.
-
- * Publish. Put your package on npm under a name like `codemirror-lang-EXAMPLE`.
