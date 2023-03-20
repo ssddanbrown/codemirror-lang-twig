@@ -4,7 +4,31 @@
 
 ==>
 
-Template(CodeBlock(CodeBlockTag, String))
+Template(CodeBlock(CodeTag, String))
+
+# Multi tag single liner
+
+{% set msg = "Result not found" %}
+
+==>
+
+Template(CodeBlock(CodeTag, Identifier, Operator, String))
+
+# Test conflicting case (in/include)
+
+{% include "empty.twig" if "in" in "include" %}
+
+==>
+
+Template(CodeBlock(CodeTag, String, CodeTag, String, Comparison, String))
+
+# Test code with brackets included
+
+{% include "empty.twig" with { message: msg } %}
+
+==>
+
+Template(CodeBlock(CodeTag, String, CodeTag, Identifier, Identifier))
 
 # Test open and close block
 
@@ -15,7 +39,24 @@ Template(CodeBlock(CodeBlockTag, String))
 ==>
 
 Template(
-    CodeOpenBlock(CodeOpenBlockTag, Boolean)
+    CodeBlock(CodeTag, Boolean)
     PlainText
-    CodeCloseBlock(CodeCloseBlockTag)
+    CodeBlock(CodeTag)
+)
+
+# Test complex open
+
+{% for foo in bar if foo.baz is divisible by(3) %}
+Hello
+{% endfor %}
+
+==>
+
+Template(
+    CodeBlock(
+        CodeTag, Identifier, Comparison, Identifier, CodeTag, ChainedIdentifier, Comparison, Identifier,
+        Function(Identifier, FunctionParamList(Number))
+    )
+    PlainText
+    CodeBlock(CodeTag)
 )

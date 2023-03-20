@@ -59,6 +59,20 @@ Template(
   )
 )
 
+# Test Array
+
+{{ ["cat", 5, true] }}
+
+==>
+
+Template(
+  InsertBlock(
+    Array(
+      String, Number, Boolean
+    )
+  )
+)
+
 # Test Mix of types
 
 {{ -5.4 hello(5, "dog") true donkey "false" "-7.4" }}

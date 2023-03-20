@@ -4,15 +4,13 @@
   lesser
 }
 
-@top Template { (InsertBlock | CodeBlock | CodeOpenBlock !mid | CodeCloseBlock !top | PlainText)* }
+@top Template { (InsertBlock | CodeBlock | PlainText)* }
 
 @skip { space | BlockComment }
 
 
 InsertBlock { "{{" expression* "}}" }
-CodeBlock { "{%" CodeBlockTag? expression* "%}"}
-CodeOpenBlock { "{%" CodeOpenBlockTag expression* "%}"}
-CodeCloseBlock { "{%" CodeCloseBlockTag "%}"}
+CodeBlock { "{%" CodeTag? !top expression* "%}"}
 
 commaSep<content> { "" | content ("," content?)* }
 
@@ -20,22 +18,34 @@ expression {
   Function |
   Identifier |
   ChainedIdentifier |
-  String |
-  Boolean |
-  Number |
-  Comparison
+  Comparison |
+  Operator |
+  CodeTag |
+  Math |
+  Array |
+  basicType |
+  hashStructure
 }
 
-functionParam {
-  Identifier |
+basicType {
   String |
   Boolean |
   Number
 }
 
+functionParam {
+  Identifier |
+  basicType
+}
+
 FunctionParamList {
   "(" commaSep<functionParam> ")"
 }
+
+Array {
+  "[" commaSep<functionParam> "]"
+}
+
 
 Function { Identifier !top FunctionParamList}
 
@@ -45,11 +55,15 @@ Function { Identifier !top FunctionParamList}
   Identifier { $[a-zA-Z_\-0-9]+ }
   ChainedIdentifier { Identifier ("." Identifier)+ }
 
-  CodeBlockTag { "set" | "extends" | "use" }
-  CodeOpenBlockTag { "apply" | "for" | "if" | "block" | "autoescape" | "verbatim" | "macro" }
-  CodeCloseBlockTag { "endapply" | "endfor" | "endif" | "endblock" | "endautoescape" | "endverbatim" | "endmacro" }
+  codeBlockTag { "set" | "extends" | "use" | "else" | "include" | "with" }
+  codeOpenBlockTag { "apply" | "for" | "block" | "autoescape" | "verbatim" | "macro" | "if" }
+  codeCloseBlockTag { "endapply" | "endfor" | "endif" | "endblock" | "endautoescape" | "endverbatim" | "endmacro" }
+  CodeTag { codeBlockTag | codeOpenBlockTag | codeCloseBlockTag }
 
-  Comparison {"and" | "or" | "not" | "==" | "!=" | "<" | ">" | ">=" | "<=" | "starts with" | "ends with" | "matches" | "in" | "not"}
+  Operator { "=" | "." | "|" }
+  Math { "+" | "-" | "/" | "%" | "//" | "*" | "**"}
+  Comparison { "and" | "or" | "not" | "==" | "!=" | "<" | ">" | ">=" | "<=" | "starts with" | "ends with" | "matches" | "in" | "not" | "is" }
+  hashStructure { "{" | "}" | ":" | ","}
 
   Boolean { "true" | "false" }
   String { ("'" (![\\'] | "\\" _)* "'"?) | ("\"" (![\\"] | "\\" _)* "\""?) }
@@ -57,7 +71,7 @@ Function { Identifier !top FunctionParamList}
   int  { '0' | $[1-9] @digit* }
   frac { '.' @digit+ }
 
-  @precedence { PlainText, Boolean, Number, Comparison, ChainedIdentifier, CodeBlockTag, CodeOpenBlockTag, CodeCloseBlockTag, Identifier, space, BlockComment, String }
+  @precedence { PlainText, Boolean, Number, CodeTag, Comparison, ChainedIdentifier, Operator, Math, Identifier, space, BlockComment, String }
 
   BlockComment { "{#" blockCommentRest }
   blockCommentRest { ![#] blockCommentRest | "#" blockCommentAfterHash }

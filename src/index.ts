@@ -1,29 +1,29 @@
 import {parser} from "./syntax.grammar"
-import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
+import {LRLanguage, LanguageSupport} from "@codemirror/language"
 import {styleTags, tags as t} from "@lezer/highlight"
 
 export const twigLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
-      indentNodeProp.add({
-        Application: delimitedIndent({closing: ")", align: false})
-      }),
-      foldNodeProp.add({
-        Application: foldInside
-      }),
       styleTags({
         Identifier: t.variableName,
         Boolean: t.bool,
         String: t.string,
         Number: t.number,
         BlockComment: t.blockComment,
+        CodeTag: t.keyword,
+        Comparison: t.compareOperator,
+        Operator: t.operator,
+        Math: t.arithmeticOperator,
         "Function/Identifier": t.function(t.definition(t.variableName)),
         "( )": t.paren,
+        "{ }": t.brace,
+        "{{ }} {% %}": t.meta,
       })
     ]
   }),
   languageData: {
-    commentTokens: {line: ";"}
+    commentTokens: {block: {open: "{#", close: "#}"}}
   }
 })
 
