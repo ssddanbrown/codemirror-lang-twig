@@ -4,7 +4,8 @@
   "description": "Twig language support for CodeMirror",
   "scripts": {
     "test": "mocha test/test.js",
-    "prepare": "rollup -c"
+    "prepare": "rollup -c",
+    "publish": "npm publish --access public"
   },
   "type": "module",
   "main": "dist/index.cjs",
