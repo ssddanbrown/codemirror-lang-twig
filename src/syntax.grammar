@@ -20,7 +20,6 @@ expression {
   ChainedIdentifier |
   Comparison |
   Operator |
-  CodeTag |
   Math |
   Array |
   basicType |
